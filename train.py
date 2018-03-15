@@ -7,9 +7,9 @@ import numpy
 from chainer import training
 from chainer.training import extensions
 
-import visualize
-import sampler
 import models
+import sampler
+import visualize
 
 
 def main():
