@@ -1,5 +1,7 @@
-# Probability Distribution Network
-Learning cumulative distribution function with a *[Monotonic Networks (J. Sill, NIPS1997)](https://papers.nips.cc/paper/1358-monotonic-networks) .*
+# Learning Cumulative Distribution Function with Neural Networks 
+Here is a implementation of the new technique for density estimation with neural networks.
+
+This model Learns cumulative distribution function with a *[Monotonic Networks (J. Sill, NIPS1997)](https://papers.nips.cc/paper/1358-monotonic-networks)*.
 
 ## 1d Gaussian
 ![Output heat map for 1d gaussian](images/gaussian_1d.png?raw=true)
