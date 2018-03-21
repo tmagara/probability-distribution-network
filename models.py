@@ -95,24 +95,25 @@ class ProbabilityDistributionNetwork(chainer.ChainList):
             self.add_link(net)
 
     def calculate_pn(self, x):
-        xp = self.xp
-        p_list = []
+        xi_list = chainer.functions.separate(x[:, :, None], 1)
+        cumulative_probability_list = []
         for i, cumulative_distribution in enumerate(self):
-            marginal, xi, _ = xp.split(x, (i, i + 1), 1)
-            xi = chainer.Variable(xi)
+            marginal = chainer.as_variable(x[:, 0:i].data)
             with chainer.using_config('enable_backprop', True):
-                cumulative_probability = cumulative_distribution(xi, marginal)
-                p, = chainer.grad([cumulative_probability], [xi], enable_double_backprop=True)
-            p_list.append(p)
+                cumulative_probability = cumulative_distribution(xi_list[i], marginal)
+            cumulative_probability_list.append(cumulative_probability)
+        p_list = chainer.grad(cumulative_probability_list, xi_list, enable_double_backprop=True)
         p = chainer.functions.concat(tuple(p_list), 1)
         return p
 
     def calculate_p(self, x):
+        x = chainer.Variable(x)
         p = self.calculate_pn(x)
         p = chainer.functions.prod(p, 1, True)
         return p
 
     def __call__(self, x):
+        x = chainer.Variable(x)
         p = self.calculate_pn(x)
         loss = -chainer.functions.sum(chainer.functions.log(p)) / p.size
         chainer.report({'loss': loss}, self)
