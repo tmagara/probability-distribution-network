@@ -8,7 +8,7 @@ from chainer import training
 from chainer.training import extensions
 
 import models
-import sampler
+import targets
 import visualize
 
 
@@ -34,17 +34,17 @@ def main():
     print('')
 
     if args.dataset == 'gaussian_1d':
-        train = sampler.gaussian_1d(numpy, 4096)
-        test = sampler.gaussian_1d(numpy, 1024)
+        train = targets.gaussian_1d(numpy, 4096)
+        test = targets.gaussian_1d(numpy, 1024)
     elif args.dataset == 'gaussian_mix_2d':
-        train = sampler.gaussian_mixture_circle(numpy, 32768)
-        test = sampler.gaussian_mixture_circle(numpy, 1024)
+        train = targets.gaussian_mixture_circle(numpy, 32768)
+        test = targets.gaussian_mixture_circle(numpy, 1024)
     elif args.dataset == 'gaussian_half_1d':
-        train = sampler.half_gaussian_1d(numpy, 16384)
-        test = sampler.half_gaussian_1d(numpy, 1024)
+        train = targets.half_gaussian_1d(numpy, 16384)
+        test = targets.half_gaussian_1d(numpy, 1024)
     elif args.dataset == 'half_gaussian_2d':
-        train = sampler.truncated_gaussian_circle(numpy, 32768)
-        test = sampler.truncated_gaussian_circle(numpy, 1024)
+        train = targets.truncated_gaussian_circle(numpy, 32768)
+        test = targets.truncated_gaussian_circle(numpy, 1024)
     else:
         raise RuntimeError('Invalid dataset: {}.'.format(args.dataset))
 
