@@ -10,20 +10,23 @@ from matplotlib import pyplot
 class Visualize(chainer.training.Extension):
     trigger = (1, 'epoch')
 
-    def __init__(self, target, samples):
+    def __init__(self, target, samples, inverse):
         self.target = target
         self.samples = samples
+        self.inverse = inverse
 
     def __call__(self, trainer):
         path = pathlib.Path(trainer.out) / pathlib.Path("epoch_{.updater.epoch}.png".format(trainer))
         with chainer.using_config('train', False):
             if self.samples.shape[1] == 1:
-                self.save_1d(self.target, self.samples, str(path))
+                self.save_1d(str(path))
             else:
-                self.save_2d(self.target, self.samples, str(path))
+                self.save_2d(str(path))
 
-    @staticmethod
-    def save_1d(model, samples, file_path):
+    def save_1d(self, file_path):
+        model = self.target
+        samples = self.samples
+
         seaborn.set_style("whitegrid")
 
         xp = model.xp
@@ -35,13 +38,24 @@ class Visualize(chainer.training.Extension):
         samples = chainer.backends.cuda.to_cpu(samples)
 
         pyplot.figure()
-        ax = seaborn.distplot(samples, kde=False, bins=64)
+
+        if self.inverse is not None:
+            uniform = xp.random.uniform(size=samples.shape, dtype=samples.dtype)
+            generated = self.inverse.sample(uniform)
+            generated = chainer.backends.cuda.to_cpu(generated.data)
+
+            ax = seaborn.distplot(generated, kde=False, bins=64)
+        else:
+            ax = seaborn.distplot(samples, kde=False, bins=64)
         pyplot.plot(x, p * samples.size * ax.patches[0].get_width())
+
         pyplot.savefig(file_path)
         pyplot.close()
 
-    @staticmethod
-    def save_2d(model, samples, file_path):
+    def save_2d(self, file_path):
+        model = self.target
+        samples = self.samples
+
         seaborn.set_style("whitegrid")
 
         xp = model.xp
@@ -56,13 +70,24 @@ class Visualize(chainer.training.Extension):
 
         pyplot.figure()
 
-        ax1 = pyplot.subplot(1, 2, 1)
+        rows = 2 if self.inverse is None else 3
+
+        ax1 = pyplot.subplot(1, rows, 1)
         ax1.set_aspect('equal')
         pyplot.scatter(samples[:, 0], samples[:, 1], 1)
 
-        ax2 = pyplot.subplot(1, 2, 2)
+        ax2 = pyplot.subplot(1, rows, 2)
         ax2.set_aspect('equal')
         pyplot.pcolor(p)
+
+        if self.inverse is not None:
+            uniform = xp.random.uniform(size=samples.shape, dtype=samples.dtype)
+            generated = self.inverse.sample(uniform)
+            generated = chainer.backends.cuda.to_cpu(generated.data)
+
+            ax3 = pyplot.subplot(1, rows, 3)
+            ax3.set_aspect('equal')
+            pyplot.scatter(generated[:, 0], generated[:, 1], 1)
 
         pyplot.savefig(file_path, bbox_inches='tight')
         pyplot.close()

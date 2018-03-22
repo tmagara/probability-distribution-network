@@ -81,9 +81,7 @@ class MonotonicNetwork(chainer.Chain):
         h = chainer.functions.max(h, 3)
         h = chainer.functions.min(h, 2)
 
-        p = chainer.functions.sigmoid(h)
-
-        return p
+        return h
 
 
 class ProbabilityDistributionNetwork(chainer.ChainList):
@@ -101,6 +99,7 @@ class ProbabilityDistributionNetwork(chainer.ChainList):
             marginal = chainer.as_variable(x[:, 0:i].data)
             with chainer.using_config('enable_backprop', True):
                 cumulative_probability = cumulative_distribution(xi_list[i], marginal)
+                cumulative_probability = chainer.functions.sigmoid(cumulative_probability)
             cumulative_probability_list.append(cumulative_probability)
         p_list = chainer.grad(cumulative_probability_list, xi_list, enable_double_backprop=True)
         p = chainer.functions.concat(tuple(p_list), 1)

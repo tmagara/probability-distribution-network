@@ -47,3 +47,17 @@ def truncated_gaussian_circle(xp, batchsize):
 def gaussian_mixture_circle_1d(xp, batchsize):
     samples = gaussian_mixture_circle(xp, batchsize)
     return samples[:, 0:1]
+
+
+def uniform(xp, batchsize, input_size):
+    return xp.random.uniform(size=(batchsize, input_size)).astype(xp.float32)
+
+
+def gaussian_mixture_1d(xp, batchsize):
+    # mu = xp.array([10.5 / 9.0, -25.5 / 9.0], xp.float32)
+    # var = xp.array([0.5 / 3.0, 1.0 / 3.0], xp.float32)
+    mu = xp.array([1, -3], xp.float32)
+    var = xp.array([0.5, 1], xp.float32)
+    weight = xp.array([1, 1])
+    i = xp.random.choice(len(weight), (batchsize, 1), True, weight / xp.sum(weight))
+    return ((mu[i] + var[i] * xp.random.normal(0.0, 1.0, i.shape).astype(xp.float32)) + 6) / 9.0
