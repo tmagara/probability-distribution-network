@@ -64,18 +64,16 @@ class MonotonicNetwork(chainer.Chain):
             self.linear3 = MonotonicLinear(monotone_size[2], marginal_size[2], monotone_size[3], 0)
         self.pool_size = pool_size
 
-    def __call__(self, x_monotone, x_marginal):
-        h_monotone, h_marginal = x_monotone, x_marginal
+    def __call__(self, monotone, marginal):
+        monotone, marginal = self.linear1(monotone, marginal)
+        monotone = chainer.functions.tanh(monotone)
+        marginal = chainer.functions.tanh(marginal)
 
-        h_monotone, h_marginal = self.linear1(h_monotone, h_marginal)
-        h_monotone = chainer.functions.sigmoid(h_monotone) - 0.5
-        h_marginal = chainer.functions.sigmoid(h_marginal) - 0.5
+        monotone, marginal = self.linear2(monotone, marginal)
+        monotone = chainer.functions.tanh(monotone)
+        marginal = chainer.functions.tanh(marginal)
 
-        h_monotone, h_marginal = self.linear2(h_monotone, h_marginal)
-        h_monotone = chainer.functions.sigmoid(h_monotone) - 0.5
-        h_marginal = chainer.functions.sigmoid(h_marginal) - 0.5
-
-        h, _ = self.linear3(h_monotone, h_marginal)
+        h, _ = self.linear3(monotone, marginal)
 
         h = chainer.functions.reshape(h, (h.shape[0], 1, self.pool_size, -1))
         h = chainer.functions.max(h, 3)

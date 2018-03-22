@@ -30,7 +30,7 @@ class Visualize(chainer.training.Extension):
         seaborn.set_style("whitegrid")
 
         xp = model.xp
-        x = xp.linspace(-0.5, 0.5, 256).astype(xp.float32)
+        x = xp.linspace(-0.5, 0.5, 257).astype(xp.float32)
         p = model.calculate_p(x[:, None])
 
         x = chainer.backends.cuda.to_cpu(x)
@@ -42,7 +42,7 @@ class Visualize(chainer.training.Extension):
         if self.inverse is not None:
             uniform = xp.random.uniform(size=samples.shape, dtype=samples.dtype)
             generated = self.inverse.sample(uniform)
-            generated = chainer.backends.cuda.to_cpu(generated.data)
+            generated = chainer.backends.cuda.to_cpu(generated)
 
             ax = seaborn.distplot(generated, kde=False, bins=64)
         else:
@@ -83,7 +83,7 @@ class Visualize(chainer.training.Extension):
         if self.inverse is not None:
             uniform = xp.random.uniform(size=samples.shape, dtype=samples.dtype)
             generated = self.inverse.sample(uniform)
-            generated = chainer.backends.cuda.to_cpu(generated.data)
+            generated = chainer.backends.cuda.to_cpu(generated)
 
             ax3 = pyplot.subplot(1, rows, 3)
             ax3.set_aspect('equal')
