@@ -30,7 +30,7 @@ class Visualize(chainer.training.Extension):
         seaborn.set_style("whitegrid")
 
         xp = model.xp
-        x = xp.linspace(0.0, 1.0, 256).astype(xp.float32)
+        x = xp.linspace(-0.5, 0.5, 256).astype(xp.float32)
         p = model.calculate_p(x[:, None])
 
         x = chainer.backends.cuda.to_cpu(x)
@@ -60,7 +60,7 @@ class Visualize(chainer.training.Extension):
 
         xp = model.xp
 
-        x = xp.linspace(0.0, 1.0, 65, dtype=xp.float32)
+        x = xp.linspace(-0.5, 0.5, 65, dtype=xp.float32)
         x1, x2 = xp.broadcast_arrays(x[:, None], x[None])
         x = xp.stack((x1, x2), 2)
         x = xp.reshape(x, (-1, 2))

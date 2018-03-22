@@ -65,7 +65,7 @@ class MonotonicNetwork(chainer.Chain):
         self.pool_size = pool_size
 
     def __call__(self, x_monotone, x_marginal):
-        h_monotone, h_marginal = x_monotone - 0.5, x_marginal - 0.5
+        h_monotone, h_marginal = x_monotone, x_marginal
 
         h_monotone, h_marginal = self.linear1(h_monotone, h_marginal)
         h_monotone = chainer.functions.sigmoid(h_monotone) - 0.5
