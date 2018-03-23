@@ -22,3 +22,22 @@ train.py --gpu 0 --dataset gaussian_1d
 ```
 train.py --gpu 0 --dataset gaussian_mix_2d
 ```
+
+# Sampling
+You can also use this technique to sampling from the distribution by learning inverse of the model.
+
+## 1d Mixed Gaussian
+```
+train.py --gpu 0 --dataset gaussian_mix_1d --resume result/forward_snapshot_epoch_100 --mode inverse
+```
+
+![Sampled data for mixture of 1d gaussian](images/mixed_gaussian_1d_sampled.png)
+Learned distribution(orange line), sampled data from learned model(blue bars).
+
+## 2d Mixed Gaussian
+```
+train.py --gpu 0 --dataset gaussian_mix_2d --resume result/forward_snapshot_epoch_100 --mode inverse
+```
+
+![Sampled data for mixture of 1d gaussian](images/mixed_gaussian_2d_sampled.png)
+Original data(left), learned distribution(center), sampled data from learned model(right).

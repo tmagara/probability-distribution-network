@@ -45,10 +45,6 @@ def gaussian_mixture_circle_1d(xp, batchsize):
     return samples[:, 0:1]
 
 
-def uniform(xp, batchsize, input_size):
-    return xp.random.uniform(-0.5, 0.5, (batchsize, input_size)).astype(xp.float32)
-
-
 def gaussian_mixture_1d(xp, batchsize):
     # mu = xp.array([10.5 / 9.0, -25.5 / 9.0], xp.float32)
     # var = xp.array([0.5 / 3.0, 1.0 / 3.0], xp.float32)

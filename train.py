@@ -92,12 +92,9 @@ def main():
         trainer.run()
 
 
-def train_inverse(args, train_original, test_original, pdn):
-    train = targets.uniform(numpy, train_original.shape[0], train_original.shape[1])
-    test = targets.uniform(numpy, test_original.shape[0], test_original.shape[1])
-
+def train_inverse(args, train, test, pdn):
     if train.shape[1] == 1:
-        model = inversed_model.InversedProbabilityDistributionNetwork(pdn, 1, [16, 16, 1], [16, 16], 1)
+        model = inversed_model.InversedProbabilityDistributionNetwork(pdn, 1, [16, 16, 16], [16, 16], 4)
     elif train.shape[1] == 2:
         model = inversed_model.InversedProbabilityDistributionNetwork(pdn, 2, [32, 32, 32], [32, 32], 8)
     else:
@@ -121,7 +118,7 @@ def train_inverse(args, train_original, test_original, pdn):
     trainer.extend(extensions.snapshot(filename='inverse_snapshot_epoch_{.updater.epoch}'), trigger=(10, 'epoch'))
     trainer.extend(extensions.LogReport())
     trainer.extend(extensions.PrintReport(['epoch', 'main/loss', 'validation/main/loss', 'elapsed_time']))
-    trainer.extend(visualize.Visualize(pdn, test_original, model))
+    trainer.extend(visualize.Visualize(pdn, test, model))
 
     trainer.run()
 

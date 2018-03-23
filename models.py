@@ -92,26 +92,29 @@ class ProbabilityDistributionNetwork(chainer.ChainList):
 
     def calculate_pn(self, x):
         xi_list = chainer.functions.separate(x[:, :, None], 1)
-        cumulative_probability_list = []
+        yi_list = []
         for i, cumulative_distribution in enumerate(self):
             marginal = chainer.as_variable(x[:, 0:i].data)
             with chainer.using_config('enable_backprop', True):
-                cumulative_probability = cumulative_distribution(xi_list[i], marginal)
-                cumulative_probability = chainer.functions.sigmoid(cumulative_probability)
-            cumulative_probability_list.append(cumulative_probability)
-        p_list = chainer.grad(cumulative_probability_list, xi_list, enable_double_backprop=True)
-        p = chainer.functions.concat(tuple(p_list), 1)
-        return p
+                yi = cumulative_distribution(xi_list[i], marginal)
+            yi_list.append(yi)
+        gy_list = chainer.grad(yi_list, xi_list, enable_double_backprop=True)
+        y = chainer.functions.concat(tuple(yi_list), 1)
+        gy = chainer.functions.concat(tuple(gy_list), 1)
+        return y, gy
 
     def calculate_p(self, x):
         x = chainer.Variable(x)
-        p = self.calculate_pn(x)
+        y, gy = self.calculate_pn(x)
+        cumulative = chainer.functions.sigmoid(y)
+        p = cumulative * (1 - cumulative) * gy
         p = chainer.functions.prod(p, 1, True)
         return p
 
     def __call__(self, x):
         x = chainer.Variable(x)
-        p = self.calculate_pn(x)
-        loss = -chainer.functions.sum(chainer.functions.log(p)) / p.size
+        y, gy = self.calculate_pn(x)
+        log_p = chainer.functions.softplus(y) * 2 - y - chainer.functions.log(gy)
+        loss = chainer.functions.sum(log_p) / log_p.shape[0]
         chainer.report({'loss': loss}, self)
         return loss
