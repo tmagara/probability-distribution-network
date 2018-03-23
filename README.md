@@ -15,7 +15,7 @@ This model Learns cumulative distribution function with a *[Monotonic Networks (
 ## Truncated 2d Gaussians
 ![Output heat map for truncated 2d gaussian](images/half_gaussian_2d.png?raw=true)
 
-##Run
+## Run
 ```
 train.py --gpu 0 --dataset gaussian_1d
 ```
