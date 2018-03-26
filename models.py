@@ -1,5 +1,3 @@
-import math
-
 import chainer
 
 
@@ -9,7 +7,7 @@ class MonotonicLinear(chainer.Chain):
     def __init__(self, monotone_input, marginal_input, monotone_output, marginal_output):
         super().__init__()
         with self.init_scope():
-            weight_initializer = chainer.initializers.HeNormal(1 / math.sqrt(2.0))
+            weight_initializer = chainer.initializers.LeCunNormal()
             self.w = chainer.Parameter(weight_initializer, (monotone_output, monotone_input))
             bias_initializer = chainer.initializers.Constant(0)
             self.b1 = chainer.Parameter(bias_initializer, (monotone_output,))
@@ -67,11 +65,11 @@ class MonotonicNetwork(chainer.Chain):
     def __call__(self, monotone, marginal):
         monotone, marginal = self.linear1(monotone, marginal)
         monotone = chainer.functions.tanh(monotone)
-        marginal = chainer.functions.tanh(marginal)
+        marginal = chainer.functions.relu(marginal)
 
         monotone, marginal = self.linear2(monotone, marginal)
         monotone = chainer.functions.tanh(monotone)
-        marginal = chainer.functions.tanh(marginal)
+        marginal = chainer.functions.relu(marginal)
 
         h, _ = self.linear3(monotone, marginal)
 

@@ -15,11 +15,11 @@ import visualize
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Learning cumulative distribution function with Monotonic Networks:')
+    parser = argparse.ArgumentParser(description='Learning cumulative distribution function with Monotonic Networks.')
     parser.add_argument('--dataset', '-d', default='gaussian_1d',
                         help='The dataset to use: gaussian_1d or gaussian_mix_2d')
     parser.add_argument('--mode', '-m', default='forward',
-                        help='Learning probability distrubution(\'forward\') or it\'s inverse function(\'inverse\')')
+                        help='Learning probability distribution(\'forward\') or it\'s inverse function(\'inverse\')')
     parser.add_argument('--batchsize', '-b', type=int, default=128,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=100,
@@ -87,7 +87,7 @@ def main():
         chainer.serializers.load_npz(args.resume, trainer)
 
     if args.mode == 'inverse':
-        train_inverse(args, train, test, model)
+        train_inverse(args, numpy.zeros_like(train), numpy.zeros_like(test), model)
     else:
         trainer.run()
 

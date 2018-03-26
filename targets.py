@@ -46,8 +46,6 @@ def gaussian_mixture_circle_1d(xp, batchsize):
 
 
 def gaussian_mixture_1d(xp, batchsize):
-    # mu = xp.array([10.5 / 9.0, -25.5 / 9.0], xp.float32)
-    # var = xp.array([0.5 / 3.0, 1.0 / 3.0], xp.float32)
     mu = xp.array([1, -3], xp.float32)
     var = xp.array([0.5, 1], xp.float32)
     weight = xp.array([1, 1])
