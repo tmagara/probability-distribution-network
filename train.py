@@ -12,6 +12,7 @@ import inversed_model
 import models
 import targets
 import visualize
+from made import Gaussians2D
 
 
 def main():
@@ -59,6 +60,7 @@ def main():
         model = models.ProbabilityDistributionNetwork(1, [16, 16, 16], [16, 16], 4)
     elif train.shape[1] == 2:
         model = models.ProbabilityDistributionNetwork(2, [32, 32, 32], [32, 32], 8)
+        # model = Gaussians2D()
     else:
         raise RuntimeError('Invalid dataset.')
 
@@ -77,6 +79,7 @@ def main():
     updater = training.StandardUpdater(train_iter, optimizer, device=args.gpu)
     trainer = training.Trainer(updater, stop_trigger, out=args.out)
     trainer.extend(extensions.Evaluator(test_iter, model, device=args.gpu))
+    trainer.extend(chainer.training.extensions.FailOnNonNumber())
 
     trainer.extend(extensions.snapshot(filename='forward_snapshot_epoch_{.updater.epoch}'), trigger=(10, 'epoch'))
     trainer.extend(extensions.LogReport())

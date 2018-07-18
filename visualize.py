@@ -64,7 +64,9 @@ class Visualize(chainer.training.Extension):
         x1, x2 = xp.broadcast_arrays(x[:, None], x[None])
         x = xp.stack((x1, x2), 2)
         x = xp.reshape(x, (-1, 2))
+
         p = model.calculate_p(x)
+        p = chainer.functions.prod(p, 1, True)
         p = chainer.functions.reshape(p, x1.shape)
         p = chainer.backends.cuda.to_cpu(p.data)
 
