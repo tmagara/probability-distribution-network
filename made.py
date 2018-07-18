@@ -67,6 +67,8 @@ class MaskedMonotonicNetwork(chainer.Chain):
         self.pool_size1 = pool_size1
         self.pool_size2 = pool_size2
 
+        self.shuffle(0xABCDEF)
+
     def shuffle(self, seed):
         xp = self.xp
         xp.random.seed(seed)
@@ -90,7 +92,7 @@ class MaskedMonotonicNetwork(chainer.Chain):
                 self.monotone_mask[1:]):
             l.mask(d1, d2, m1, m2)
 
-    def __call__(self, x):
+    def cumulative_p(self, x):
         h = self.linear1(x)
         h = chainer.functions.tanh(h)
 
@@ -105,50 +107,12 @@ class MaskedMonotonicNetwork(chainer.Chain):
 
         return h
 
-
-class Iris(chainer.Chain):
-    def __init__(self):
-        super().__init__()
-        with self.init_scope():
-            self.monotonic = MaskedMonotonicNetwork([4 + 3, 32, 32], 3, 4, 4)
-
-    def shuffle(self, seed):
-        self.monotonic.shuffle(seed)
-
-    def calculate_pn(self, x):
-        x = chainer.as_variable(x)
-        with chainer.using_config('enable_backprop', True):
-            y = self.monotonic(x)
-        gy_list = chainer.grad([y], [x], enable_double_backprop=True)
-        return y, gy_list[0]
-
-    def __call__(self, x, label):
-        xp = self.xp
-
-        label_one_hot = xp.eye(3, dtype=xp.float32)[label]
-        x = xp.concatenate((x, label_one_hot), 1)
-        x = chainer.Variable(x)
-
-        y, gy = self.calculate_pn(x)
-        log_p = chainer.functions.softplus(y) * 2 - y - chainer.functions.log(gy)
-        loss = chainer.functions.sum(log_p) / log_p.shape[0]
-        chainer.report({'loss': loss}, self)
-        return loss
-
-
-class Gaussians2D(chainer.Chain):
-    def __init__(self):
-        super().__init__()
-        with self.init_scope():
-            self.monotonic = MaskedMonotonicNetwork([2, 32, 32], 0, 4, 4)
-        self.monotonic.shuffle(0xABCDEF)
-
     def calculate_p(self, x):
         monotone = chainer.Variable(x, requires_grad=True)
         marginal = chainer.Variable(x[:, :-1], requires_grad=False)
         with chainer.using_config('enable_backprop', True):
             x = chainer.functions.concat((marginal, monotone))
-            y = self.monotonic(x)
+            y = self.cumulative_p(x)
             p_cumulative = chainer.functions.sigmoid(y)
         p_list = chainer.grad([p_cumulative], [monotone], enable_double_backprop=True)
         return p_list[0]
@@ -158,7 +122,7 @@ class Gaussians2D(chainer.Chain):
         marginal = chainer.Variable(x[:, :-1], requires_grad=False)
         with chainer.using_config('enable_backprop', True):
             x = chainer.functions.concat((marginal, monotone))
-            y = self.monotonic(x)
+            y = self.cumulative_p(x)
         gy_list = chainer.grad([y], [monotone], enable_double_backprop=True)
         gy = gy_list[0]
         log_p = chainer.functions.softplus(y) * 2 - y - chainer.functions.log(gy)

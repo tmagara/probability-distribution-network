@@ -9,10 +9,10 @@ from chainer.backends.cuda import get_device_from_id
 from chainer.training import extensions
 
 import inversed_model
+import made
 import models
 import targets
 import visualize
-from made import Gaussians2D
 
 
 def main():
@@ -60,7 +60,7 @@ def main():
         model = models.ProbabilityDistributionNetwork(1, [16, 16, 16], [16, 16], 4)
     elif train.shape[1] == 2:
         # model = models.ProbabilityDistributionNetwork(2, [32, 32, 32], [32, 32], 8)
-        model = Gaussians2D()
+        model = made.MaskedMonotonicNetwork([2, 32, 32], 0, 4, 4)
     else:
         raise RuntimeError('Invalid dataset.')
 
