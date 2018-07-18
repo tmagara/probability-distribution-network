@@ -59,8 +59,8 @@ def main():
     if train.shape[1] == 1:
         model = models.ProbabilityDistributionNetwork(1, [16, 16, 16], [16, 16], 4)
     elif train.shape[1] == 2:
-        model = models.ProbabilityDistributionNetwork(2, [32, 32, 32], [32, 32], 8)
-        # model = Gaussians2D()
+        # model = models.ProbabilityDistributionNetwork(2, [32, 32, 32], [32, 32], 8)
+        model = Gaussians2D()
     else:
         raise RuntimeError('Invalid dataset.')
 
