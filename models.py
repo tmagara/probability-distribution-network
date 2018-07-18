@@ -106,7 +106,6 @@ class ProbabilityDistributionNetwork(chainer.ChainList):
         y, gy = self.calculate_pn(x)
         cumulative = chainer.functions.sigmoid(y)
         p = cumulative * (1 - cumulative) * gy
-        p = chainer.functions.prod(p, 1, True)
         return p
 
     def __call__(self, x):
