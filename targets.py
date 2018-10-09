@@ -1,5 +1,7 @@
 import math
 
+import numpy
+
 
 def gaussian_1d(xp, batchsize):
     return xp.random.normal(0.0, 0.25, (batchsize, 1)).astype(xp.float32)
@@ -43,6 +45,15 @@ def truncated_gaussian_circle(xp, batchsize):
 def gaussian_mixture_circle_1d(xp, batchsize):
     samples = gaussian_mixture_circle(xp, batchsize)
     return samples[:, 0:1]
+
+
+def mixture_1d(xp, batchsize):
+    s = batchsize // 4
+    g1 = xp.random.normal(-3, 0.5, (s, 1)).astype(xp.float32)
+    g2 = xp.random.normal(3, 0.375, (s, 1)).astype(xp.float32)
+    u1 = xp.random.uniform(-1, 0.5, (s, 1)).astype(xp.float32)
+    u2 = xp.random.uniform(1, 2, (batchsize - s * 3, 1)).astype(xp.float32)
+    return xp.concatenate((g1, g2, u1, u2), 0) / 9
 
 
 def gaussian_mixture_1d(xp, batchsize):

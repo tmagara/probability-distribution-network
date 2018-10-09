@@ -47,6 +47,9 @@ def main():
     elif args.dataset == 'gaussian_mix_1d':
         train = targets.gaussian_mixture_1d(numpy, 16384)
         test = targets.gaussian_mixture_1d(numpy, 1024)
+    elif args.dataset == 'mixture_1d':
+        train = targets.mixture_1d(numpy, 32768)
+        test = targets.mixture_1d(numpy, 1024)
     elif args.dataset == 'gaussian_mix_2d':
         train = targets.gaussian_mixture_circle(numpy, 32768)
         test = targets.gaussian_mixture_circle(numpy, 1024)
@@ -57,7 +60,7 @@ def main():
         raise RuntimeError('Invalid dataset: {}.'.format(args.dataset))
 
     if train.shape[1] == 1:
-        model = models.ProbabilityDistributionNetwork(1, [16, 16, 16], [16, 16], 4)
+        model = models.ProbabilityDistributionNetwork(1, [32, 32, 32], [32, 32], 4)
     elif train.shape[1] == 2:
         # model = models.ProbabilityDistributionNetwork(2, [32, 32, 32], [32, 32], 8)
         model = made.MaskedMonotonicNetwork([2, 32, 32], 0, 4, 4)
