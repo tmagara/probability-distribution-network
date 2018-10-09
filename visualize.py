@@ -40,7 +40,7 @@ class Visualize(chainer.training.Extension):
         pyplot.figure()
 
         if self.inverse is not None:
-            uniform = xp.random.uniform(size=samples.shape, dtype=samples.dtype)
+            uniform = xp.random.uniform(size=samples.shape).astype(samples.dtype)
             generated = self.inverse.sample(uniform)
             generated = chainer.backends.cuda.to_cpu(generated)
 
