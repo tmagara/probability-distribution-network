@@ -118,14 +118,8 @@ class MaskedMonotonicNetwork(chainer.Chain):
         return p_list[0]
 
     def __call__(self, x):
-        monotone = chainer.Variable(x, requires_grad=True)
-        marginal = chainer.Variable(x[:, :-1], requires_grad=False)
-        with chainer.using_config('enable_backprop', True):
-            x = chainer.functions.concat((marginal, monotone))
-            y = self.cumulative_p(x)
-        gy_list = chainer.grad([y], [monotone], enable_double_backprop=True)
-        gy = gy_list[0]
-        log_p = chainer.functions.softplus(y) * 2 - y - chainer.functions.log(gy)
-        loss = chainer.functions.sum(log_p) / log_p.shape[0]
+        p = self.calculate_p(x)
+        loss = -chainer.functions.log(p)
+        loss = chainer.functions.sum(loss) / loss.shape[0]
         chainer.report({'loss': loss}, self)
         return loss
