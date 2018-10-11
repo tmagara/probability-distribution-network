@@ -10,13 +10,14 @@ from matplotlib import pyplot
 class Visualize(chainer.training.Extension):
     trigger = (1, 'epoch')
 
-    def __init__(self, target, samples, inverse):
+    def __init__(self, path_string, target, samples, inverse):
+        self.path_string = path_string
         self.target = target
         self.samples = samples
         self.inverse = inverse
 
     def __call__(self, trainer):
-        path = pathlib.Path(trainer.out) / pathlib.Path("epoch_{.updater.epoch}.png".format(trainer))
+        path = pathlib.Path(trainer.out) / pathlib.Path(self.path_string.format(trainer))
         with chainer.using_config('train', False):
             if self.samples.shape[1] == 1:
                 self.save_1d(str(path))
@@ -41,12 +42,12 @@ class Visualize(chainer.training.Extension):
 
         if self.inverse is not None:
             uniform = xp.random.uniform(size=samples.shape).astype(samples.dtype)
-            generated = self.inverse.sample(uniform)
-            generated = chainer.backends.cuda.to_cpu(generated)
-
-            ax = seaborn.distplot(generated, kde=False, bins=64)
+            generated = self.inverse.sample(uniform).data
         else:
-            ax = seaborn.distplot(samples, kde=False, bins=64)
+            generated = samples
+        generated = chainer.backends.cuda.to_cpu(generated)
+        ax = seaborn.distplot(generated, kde=False, bins=64)
+
         pyplot.plot(x, p * samples.size * ax.patches[0].get_width())
 
         pyplot.savefig(file_path)
