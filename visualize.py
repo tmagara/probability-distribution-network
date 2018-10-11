@@ -85,7 +85,7 @@ class Visualize(chainer.training.Extension):
 
         if self.inverse is not None:
             uniform = xp.random.uniform(size=samples.shape, dtype=samples.dtype)
-            generated = self.inverse.sample(uniform)
+            generated = self.inverse.sample(uniform).data
             generated = chainer.backends.cuda.to_cpu(generated)
 
             ax3 = pyplot.subplot(1, rows, 3)

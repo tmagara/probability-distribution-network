@@ -92,7 +92,7 @@ class MaskedMonotonicNetwork(chainer.Chain):
                 self.monotone_mask[1:]):
             l.mask(d1, d2, m1, m2)
 
-    def cumulative_p(self, x):
+    def process(self, x):
         h = self.linear1(x)
         h = chainer.functions.tanh(h)
 
@@ -107,12 +107,16 @@ class MaskedMonotonicNetwork(chainer.Chain):
 
         return h
 
+    def cumulative_p(self, x):
+        x = chainer.functions.concat((x[:, :-1], x))
+        return self.process(x)
+
     def calculate_p(self, x):
         monotone = chainer.Variable(x, requires_grad=True)
         marginal = chainer.Variable(x[:, :-1], requires_grad=False)
         with chainer.using_config('enable_backprop', True):
             x = chainer.functions.concat((marginal, monotone))
-            y = self.cumulative_p(x)
+            y = self.process(x)
             p_cumulative = chainer.functions.sigmoid(y)
         p_list = chainer.grad([p_cumulative], [monotone], enable_double_backprop=True)
         return p_list[0]

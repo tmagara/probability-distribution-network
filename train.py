@@ -124,7 +124,7 @@ def train_inverse(args, train, test, pdn):
     trainer.extend(extensions.snapshot(filename='inverse_snapshot_epoch_{.updater.epoch}'), trigger=(50, 'epoch'))
     trainer.extend(extensions.LogReport())
     trainer.extend(extensions.PrintReport(['epoch', 'main/loss', 'validation/main/loss', 'elapsed_time']))
-    trainer.extend(visualize.Visualize("inverse_{.updater.epoch}.png", pdn, train, model), trigger=(10, 'epoch'))
+    trainer.extend(visualize.Visualize("inverse_{.updater.epoch}.png", pdn, test, model), trigger=(10, 'epoch'))
 
     trainer.run()
 
