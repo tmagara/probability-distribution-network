@@ -79,19 +79,31 @@ class MonotonicNetwork(chainer.Chain):
 
         return h
 
-
-class ProbabilityDistributionNetwork(chainer.ChainList):
+class ProbabilityDistributionNetwork(chainer.Chain):
     """Probability distribution function with multi-dimensional inputs."""
     def __init__(self, input_size, monotone_size, marginal_size, pool_size):
         super().__init__()
+        net_list = chainer.ChainList()
         for i in range(input_size):
             net = MonotonicNetwork([1] + monotone_size, [i] + marginal_size, pool_size)
-            self.add_link(net)
+            net_list.add_link(net)
+        with self.init_scope():
+            self.net_list = net_list
+
+    def cumulative_p(self, x):
+        xi_list = chainer.functions.separate(x[:, :, None], 1)
+        yi_list = []
+        for i, cumulative_distribution in enumerate(self.net_list):
+            marginal = chainer.as_variable(x[:, 0:i].data)
+            yi = cumulative_distribution(xi_list[i], marginal)
+            yi_list.append(yi)
+        y = chainer.functions.concat(tuple(yi_list), 1)
+        return y
 
     def calculate_pn(self, x):
         xi_list = chainer.functions.separate(x[:, :, None], 1)
         yi_list = []
-        for i, cumulative_distribution in enumerate(self):
+        for i, cumulative_distribution in enumerate(self.net_list):
             marginal = chainer.as_variable(x[:, 0:i].data)
             with chainer.using_config('enable_backprop', True):
                 yi = cumulative_distribution(xi_list[i], marginal)
